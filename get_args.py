@@ -25,22 +25,22 @@ def get_args():
     parser.add_argument("--missing_pattern", default="single", type=str, help="Set the missing pattern.") 
     parser.add_argument("--include_complete", default=False, type=bool)
     # only used in SINGLE missing pattern
-    parser.add_argument("--col_to_remove", default=3, type=int)
+    parser.add_argument("--col_to_remove", default=2, type=int)
     # only used in MULTIPLE and RANDOM missing pattern
-    parser.add_argument("--min_remove_count", default=6, type=int)       
-    parser.add_argument("--max_remove_count", default=7, type=int)
+    parser.add_argument("--min_remove_count", default=1, type=int)       
+    parser.add_argument("--max_remove_count", default=1, type=int)
     # only used in RANDOM missing pattern
-    parser.add_argument("--new_num_per_origin", default=100, type=int)
+    parser.add_argument("--new_num_per_origin", default=5, type=int)
 
     # MODEL SETTINGS
     parser.add_argument("--MODEL_SETTINGS", default="------------------------")
     parser.add_argument("--model_name",default="Tabular Transformer", type=str)
-    parser.add_argument("--dim_model", default=16, type=int)
+    parser.add_argument("--dim_model", default=32, type=int)
     parser.add_argument("--num_head", default=8, type=int)
-    parser.add_argument("--dim_ff", default=32, type=int)
+    parser.add_argument("--dim_ff", default=64, type=int)
     parser.add_argument("--num_features", type=int)
     parser.add_argument("--num_classes", type=int)
-    parser.add_argument("--num_layers", default=2, type=int)
+    parser.add_argument("--num_layers", default=1, type=int)
     parser.add_argument("--dropout", default=0.1, type=float)
     parser.add_argument("--threshold", default=0.5, type=int)
     parser.add_argument("--mse_rate", default=10, type=float)
@@ -48,12 +48,12 @@ def get_args():
 
     # LEARNING SETTINGS
     parser.add_argument("--LEARNING_SETTINGS", default="----------------------")
-    parser.add_argument("--epochs", default=1000, type=int)
+    parser.add_argument("--epochs", default=100, type=int)
     parser.add_argument("--batch_size", default=8)
-    parser.add_argument("--learning_rate", default=1e-3, type=float)
-    parser.add_argument("--step_size", default=100, type=int)
-    parser.add_argument("--gamma", default=0.8, type=float)
-    parser.add_argument("--print_period", default=10, type=int)
+    parser.add_argument("--learning_rate", default=1e-5, type=float)
+    parser.add_argument("--step_size", default=10, type=int)
+    parser.add_argument("--gamma", default=0.9, type=float)
+    parser.add_argument("--print_period", default=1, type=int)
 
     return parser.parse_args()
 

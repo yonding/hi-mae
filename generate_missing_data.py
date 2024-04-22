@@ -15,6 +15,7 @@ def generate_missing_data(args, X_df, y_df):
 
     new_X_rows = []
     new_Z_rows = []
+    new_mask_rows = []
 
     if args.missing_pattern == 'single':
         for index, row in complete_df.iterrows():
@@ -22,6 +23,10 @@ def generate_missing_data(args, X_df, y_df):
             new_X_row.iloc[args.col_to_remove] = 0
             new_X_rows.append(new_X_row)
             new_Z_rows.append(complete_df.loc[index])
+            new_mask_row = row.copy()
+            new_mask_row[:] = 0
+            new_mask_row[args.col_to_remove] = 1
+            new_mask_rows.append(new_mask_row)
 
     elif args.missing_pattern == 'multiple':
         features = [col for col in complete_df.columns if col != "target"]
@@ -32,6 +37,10 @@ def generate_missing_data(args, X_df, y_df):
                     new_X_row[list(subset)] = 0
                     new_X_rows.append(new_X_row)
                     new_Z_rows.append(complete_df.loc[index])
+                    new_mask_row = row.copy()
+                    new_mask_row[:] = 0
+                    new_mask_row[list(subset)] = 1
+                    new_mask_rows.append(new_mask_row)
 
     elif args.missing_pattern == 'random':
         features = [col for col in complete_df.columns if col != "target"]
@@ -47,17 +56,26 @@ def generate_missing_data(args, X_df, y_df):
                 new_X_row[list(subset)] = 0
                 new_X_rows.append(new_X_row)
                 new_Z_rows.append(complete_df.loc[index])
+                new_mask_row = row.copy()
+                new_mask_row[:] = 0
+                new_mask_row[list(subset)] = 1
+                new_mask_rows.append(new_mask_row)
 
     X_df = pd.concat(new_X_rows, ignore_index=True, axis=1).T
     Z_df = pd.concat(new_Z_rows, ignore_index=True, axis=1).T
+    mask_df = pd.concat(new_mask_rows, ignore_index=True, axis=1).T
         
     if args.include_complete:
         X_df = pd.concat([X_df, complete_df], ignore_index=True)
         Z_df = pd.concat([Z_df, complete_df], ignore_index=True)
+        complete_df[:] = 0
+        mask_df = pd.concat([mask_df, complete_df], ignore_index=True)
+
 
     if args.dataset_name != 'boston':   
         y_df = X_df["target"].astype(int)
     X_df = X_df.drop("target", axis=1)
     Z_df = Z_df.drop("target", axis=1)
+    mask_df = mask_df.drop("target", axis=1)
     
-    return X_df, Z_df, y_df
+    return X_df, Z_df, y_df, mask_df

@@ -2,11 +2,11 @@ from load_datasets import load_datasets
 from torch.utils.data import Dataset, DataLoader
 
 def get_dataloaders(args):
-    X_miss_train, Z_miss_train, y_miss_train, X_miss_val, Z_miss_val, y_miss_val, X_miss_test, Z_miss_test, y_miss_test = load_datasets(args)
+    X_miss_train, Z_miss_train, y_miss_train, mask_train, X_miss_val, Z_miss_val, y_miss_val, mask_val, X_miss_test, Z_miss_test, y_miss_test, mask_test = load_datasets(args)
     
-    train_dataset = MissingDataset(X_miss_train, Z_miss_train, y_miss_train)
-    val_dataset = MissingDataset(X_miss_val, Z_miss_val, y_miss_val)
-    test_dataset = MissingDataset(X_miss_test, Z_miss_test, y_miss_test)
+    train_dataset = MissingDataset(X_miss_train, Z_miss_train, y_miss_train, mask_train)
+    val_dataset = MissingDataset(X_miss_val, Z_miss_val, y_miss_val, mask_val)
+    test_dataset = MissingDataset(X_miss_test, Z_miss_test, y_miss_test, mask_test)
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True)
     val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=True, drop_last=True)
@@ -22,13 +22,14 @@ def get_dataloaders(args):
 
 
 class MissingDataset(Dataset):
-    def __init__(self, missing_data, complete_data, y):
+    def __init__(self, missing_data, complete_data, y, mask):
         self.missing_data = missing_data
         self.complete_data = complete_data
         self.y = y
+        self.mask = mask
 
     def __len__(self):
         return len(self.missing_data)
     
     def __getitem__(self, idx):
-        return self.missing_data[idx], self.complete_data[idx], self.y[idx]
+        return self.missing_data[idx], self.complete_data[idx], self.y[idx], self.mask[idx]

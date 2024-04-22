@@ -22,6 +22,7 @@ def load_datasets(args):
         covtype = fetch_covtype()
         X_df = pd.DataFrame(covtype.data)
         y_df = pd.DataFrame(covtype.target, columns=["target"])
+        y_df = y_df - 1
     elif args.dataset_name == 'ortho':
         df = pd.read_excel('./datasets/ortho_datasets.xlsx', sheet_name="all")
         columns_to_remove = [21, 22, 25, 26, 27, 28, 29, 30]
@@ -47,20 +48,27 @@ def load_datasets(args):
         random_state=328,
     )
 
-    X_miss_train, Z_miss_train, y_miss_train= generate_missing_data(args, X_train, y_train)
-    X_miss_val, Z_miss_val, y_miss_val= generate_missing_data(args, X_val, y_val)
-    X_miss_test, Z_miss_test, y_miss_test= generate_missing_data(args, X_test, y_test)
-
-    X_miss_train = torch.tensor(X_miss_train.values, dtype=torch.float32)
-    Z_miss_train = torch.tensor(Z_miss_train.values, dtype=torch.float32)
-
-    X_miss_val = torch.tensor(X_miss_val.values, dtype=torch.float32)
-    Z_miss_val = torch.tensor(Z_miss_val.values, dtype=torch.float32)
-
-    X_miss_test = torch.tensor(X_miss_test.values, dtype=torch.float32)
-    Z_miss_test = torch.tensor(Z_miss_test.values, dtype=torch.float32)
+    X_miss_train, Z_miss_train, y_miss_train, mask_train = generate_missing_data(args, X_train, y_train)
+    X_miss_val, Z_miss_val, y_miss_val, mask_val = generate_missing_data(args, X_val, y_val)
+    X_miss_test, Z_miss_test, y_miss_test, mask_test = generate_missing_data(args, X_test, y_test)
 
     args.num_features = X_miss_train.shape[1]
     args.num_classes = y_miss_train.nunique()
+
+    X_miss_train = torch.tensor(X_miss_train.values, dtype=torch.float32)
+    Z_miss_train = torch.tensor(Z_miss_train.values, dtype=torch.float32)
+    y_miss_train = torch.tensor(y_miss_train.values, dtype=torch.long)
+    mask_train = torch.tensor(mask_train.values, dtype=torch.float32)
+
+    X_miss_val = torch.tensor(X_miss_val.values, dtype=torch.float32)
+    Z_miss_val = torch.tensor(Z_miss_val.values, dtype=torch.float32)
+    y_miss_val = torch.tensor(y_miss_val.values, dtype=torch.long)
+    mask_val = torch.tensor(mask_val.values, dtype=torch.float32)
+
+    X_miss_test = torch.tensor(X_miss_test.values, dtype=torch.float32)
+    Z_miss_test = torch.tensor(Z_miss_test.values, dtype=torch.float32)
+    y_miss_test = torch.tensor(y_miss_test.values, dtype=torch.long)
+    mask_test = torch.tensor(mask_test.values, dtype=torch.float32)
+
     
-    return X_miss_train, Z_miss_train, y_miss_train, X_miss_val, Z_miss_val, y_miss_val, X_miss_test, Z_miss_test, y_miss_test
+    return X_miss_train, Z_miss_train, y_miss_train, mask_train, X_miss_val, Z_miss_val, y_miss_val, mask_val, X_miss_test, Z_miss_test, y_miss_test, mask_test
