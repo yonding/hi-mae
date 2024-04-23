@@ -59,26 +59,35 @@ def train_one_epoch(args, model, train_loader, optimizer):
         mask = mask.to(args.device)
 
         optimizer.zero_grad()
+
         y_pred, recon_data = model(missing_data)
 
         # loss = cross_entropy_loss(y_pred, y)
-        loss = cross_entropy_loss(y_pred, y) + torch.mean(torch.sum(mse_loss(recon_data * mask, complete_data * mask), dim=1)) * args.mse_rate
-        # loss = cross_entropy_loss(y_pred, y) + torch.sum(mse_loss(recon_data, complete_data) * mask, dim=1)
-
+        # loss = cross_entropy_loss(y_pred, y) + torch.mean(torch.sum(mse_loss(recon_data * mask, complete_data * mask), dim=1)) * args.mse_rate
+        # loss = cross_entropy_loss(y_pred, y) + torch.mean(torch.sum(mse_loss(recon_data, complete_data), dim=1)) * args.mse_rate
+        loss = cross_entropy_loss(y_pred, y) + torch.mean(torch.sum(mse_loss(recon_data, complete_data) * mask, dim=1))
+        print(f"[batch {batch_idx}]")
+        print(f"before train: Total loss {loss} | CE {cross_entropy_loss(y_pred, y).item()} | MSE {torch.mean(torch.sum(mse_loss(recon_data, complete_data) * mask, dim=1)).item()}")
         loss.backward()
 
         train_cross_entropy_loss += cross_entropy_loss(y_pred, y).item()
+        # train_mse_loss += torch.mean(torch.sum(mse_loss(recon_data, complete_data), dim=1)).item()
         train_mse_loss += torch.mean(torch.sum(mse_loss(recon_data, complete_data) * mask, dim=1)).item()
         train_loss += loss.item()
 
         optimizer.step()
 
+        y_pred, recon_data = model(missing_data)
+        loss = cross_entropy_loss(y_pred, y) + torch.mean(torch.sum(mse_loss(recon_data, complete_data) * mask, dim=1))
+
+        print(f"after train: Total loss {loss} | CE {cross_entropy_loss(y_pred, y).item()} | MSE {torch.mean(torch.sum(mse_loss(recon_data, complete_data) * mask, dim=1)).item()}\n")
+
     
-        # Print samples
-        if args.current_epoch % args.print_period == 0 and batch_idx == 1:
-            print(f"\nM: {missing_data[:1][:4]}")
-            print(f"R: {recon_data[:1][:4]}")
-            print(f"C: {complete_data[:1][:4]}")
+        # Print training samples
+        # if args.current_epoch % args.print_period == 0 and batch_idx == 1:
+        #     print(f"\nM: {missing_data[:1][:4]}")
+        #     print(f"R: {recon_data[:1][:4]}")
+        #     print(f"C: {complete_data[:1][:4]}")
 
     return train_loss / len(train_loader), train_mse_loss / len(train_loader), train_cross_entropy_loss / len(train_loader)
 
@@ -104,20 +113,23 @@ def valid_model(args, model, val_loader):
 
         y_pred, recon_data = model(missing_data)
 
-        loss = cross_entropy_loss(y_pred, y) + torch.mean(torch.sum(mse_loss(recon_data * mask, complete_data * mask), dim=1)) * args.mse_rate
+        # loss = cross_entropy_loss(y_pred, y) + torch.mean(torch.sum(mse_loss(recon_data, complete_data), dim=1)) * args.mse_rate
+
+        loss = cross_entropy_loss(y_pred, y) + torch.mean(torch.sum(mse_loss(recon_data, complete_data) * mask, dim=1))
         # loss = cross_entropy_loss(y_pred, y) + torch.mean(torch.sum(mse_loss(recon_data, complete_data) * mask, dim=1)) * args.mse_rate
         # loss = cross_entropy_loss(y_pred, y) + torch.sum(mse_loss(recon_data, complete_data) * mask, dim=1)
 
         # val_mse_loss =0
+        # val_mse_loss += torch.mean(torch.sum(mse_loss(recon_data, complete_data), dim=1)).item()
         val_mse_loss += torch.mean(torch.sum(mse_loss(recon_data, complete_data) * mask, dim=1)).item()
         val_cross_entropy_loss += cross_entropy_loss(y_pred, y).item()
         val_loss += loss.item()
 
-        # Print samples
-        if args.current_epoch % args.print_period == 0 and batch_idx == 1:
-            print(f"\nM: {missing_data[:1][:4]}")
-            print(f"R: {recon_data[:1][:4]}")
-            print(f"C: {complete_data[:1][:4]}")
+        # Print validation samples
+        # if args.current_epoch % args.print_period == 0 and batch_idx == 1:
+        #     print(f"\nM: {missing_data[:1][:4]}")
+        #     print(f"R: {recon_data[:1][:4]}")
+        #     print(f"C: {complete_data[:1][:4]}")
     
     return val_loss / len(val_loader), val_mse_loss / len(val_loader), val_cross_entropy_loss / len(val_loader)
 

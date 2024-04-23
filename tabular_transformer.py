@@ -12,9 +12,9 @@ class TabularTransformer(nn.Module):
         self.embedding = nn.Sequential(
             nn.Linear(1, args.dim_model),
             # nn.Linear(1, 64),  
-            # nn.Linear(args.dim_model, args.dim_model), 
+            nn.Linear(args.dim_model, args.dim_model), 
             # nn.Linear(64, 128), 
-            # nn.Linear(args.dim_model, args.dim_model) 
+            nn.Linear(args.dim_model, args.dim_model) 
             # nn.Linear(128, args.dim_model) 
         )
 
@@ -28,8 +28,8 @@ class TabularTransformer(nn.Module):
         self.cls_token = nn.Parameter(torch.rand(1, 1, args.dim_model))
         self.decoder = nn.Linear(args.dim_model, args.num_classes)
         self.imputation_decoder = nn.Sequential(
-            # nn.Linear(args.dim_model, args.dim_model),  
-            # nn.Linear(args.dim_model, args.dim_model), 
+            nn.Linear(args.dim_model, args.dim_model),  
+            nn.Linear(args.dim_model, args.dim_model), 
             nn.Linear(args.dim_model, 1) 
         )
 
