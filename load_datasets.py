@@ -57,9 +57,6 @@ def load_datasets(args):
     X_miss_val, Z_miss_val, y_miss_val, mask_val = generate_missing_data(args, X_val, y_val)
     X_miss_test, Z_miss_test, y_miss_test, mask_test = generate_missing_data(args, X_test, y_test)
 
-    args.num_features = X_miss_train.shape[1]
-    args.num_classes = y_miss_train.nunique()
-
     X_miss_train = torch.tensor(X_miss_train.values, dtype=torch.float32)
     Z_miss_train = torch.tensor(Z_miss_train.values, dtype=torch.float32)
     y_miss_train = torch.tensor(y_miss_train.values, dtype=torch.float32)
@@ -74,7 +71,6 @@ def load_datasets(args):
     Z_miss_test = torch.tensor(Z_miss_test.values, dtype=torch.float32)
     y_miss_test = torch.tensor(y_miss_test.values, dtype=torch.float32)
     mask_test = torch.tensor(mask_test.values, dtype=torch.float32)
-
     
     return X_miss_train, Z_miss_train, y_miss_train, mask_train, X_miss_val, Z_miss_val, y_miss_val, mask_val, X_miss_test, Z_miss_test, y_miss_test, mask_test
 

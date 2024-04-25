@@ -1,24 +1,46 @@
 import torch
 import torch.nn as nn
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score
+from torch.utils.data import DataLoader, SubsetRandomSampler
+
+from get_dataloaders import print_dataloaders_shape, print_testloader_shape, deep_copy_dataset
 
 torch.manual_seed(0)
 torch.set_printoptions(precision=4, sci_mode=False, linewidth=10000)
 
 # TRAIN AND VALIDATE
-def train_and_validate(args, model, train_loader, val_loader, optimizer):
-    
+def train_and_validate(args, model, train_dataset, val_dataset,  optimizer):
+
+    print_dataloaders_shape(args, train_dataset, val_dataset)
+
     patience = 10
     best_loss = 1e9
     best_epoch = 0
     counter = 0    
 
     for epoch in range(args.epochs):
-        
         args.current_epoch = epoch
+
+        ############################# TRAIN PHASE #############################
+        # Create a subset of the training dataset and load it into the DataLoader
+        # subset_indices = torch.randperm(len(train_dataset))[:int(args.subset_rate*len(train_dataset))]
+        # subset_indices = torch.randperm(len(train_dataset))[:int(args.subset_rate*len(train_dataset))]
+        train_dataset_copy = deep_copy_dataset(train_dataset)
+        train_dataset_copy.sampling(args.subset_rate)
+        # train_dataset = train_dataset
+        # train_loader = DataLoader(train_dataset, batch_size=args.batch_size, sampler=SubsetRandomSampler(subset_indices), shuffle=True, drop_last=True)
+
+        train_loader = DataLoader(train_dataset_copy, batch_size=args.batch_size, shuffle=True, drop_last=True)
 
         model.train()
         train_loss, train_mse_loss, train_prediction_loss = train_one_epoch(args, model, train_loader, optimizer)
+        ########################################################################
+    
+        ########################### VALIDATION PHASE ###########################
+        
+        val_dataset_copy = deep_copy_dataset(val_dataset)
+        val_dataset_copy.sampling(args.subset_rate)
+        val_loader = DataLoader(val_dataset_copy, batch_size=args.batch_size, shuffle=True, drop_last=True)
 
         model.eval()
         val_loss, val_mse_loss, val_prediction_loss = valid_model(args, model, val_loader)
@@ -33,18 +55,20 @@ def train_and_validate(args, model, train_loader, val_loader, optimizer):
 
         if counter > patience:
             break
+        ########################################################################
+
+    
 
         print(f'Epoch: {epoch}')
         print(f'[TRAIN] Total loss: {train_loss:.4f}, MSE: {train_mse_loss:.4f}, Prediction Loss(CE or MSE): {train_prediction_loss:.4f}')
-        if args.dataset_name != 'diabetes': # because diabetes is regression task
-            train_metrics = calculate_metrics(args, model, train_loader)
-            print(f'       Accuracy: {train_metrics["accuracy"]:.4f}, AUROC: {train_metrics["auroc"]:.4f}, F1 score: {train_metrics["f1_score"]:.4f}')
+
         print(f'[VALID] Total loss: {val_loss:.4f}, MSE: {val_mse_loss:.4f}, Prediction Loss(CE or MSE): {val_prediction_loss:.4f}')
         if args.dataset_name != 'diabetes': # because diabetes is regression task
             val_metrics = calculate_metrics(args, model, val_loader)
             print(f'       Accuracy: {val_metrics["accuracy"]:.4f}, AUROC: {val_metrics["auroc"]:.4f}, F1 score: {val_metrics["f1_score"]:.4f}')
-
-    print(f'Best epoch: {best_epoch}, Best Val loss: {round(best_loss, 4)}')
+    print("############################## BEST EPOCH #################################")
+    print(f'\nBest epoch: {best_epoch}, Best Val loss: {round(best_loss, 4)}')
+    print("###########################################################################")
 
 
 # Calculate additional metrics: accuracy, AUROC, F1 score
@@ -93,6 +117,8 @@ def train_one_epoch(args, model, train_loader, optimizer):
     train_prediction_loss = 0
     train_mse_loss = 0
     accuracy, Sensitivity, Specificity, Precision, f1 = 0, 0, 0, 0, 0
+    
+    # train_loader.dataset[2].unsqueeze(1)
 
     model.train()
     for batch_idx, (missing_data, complete_data, y, mask) in enumerate(train_loader):
@@ -158,13 +184,20 @@ def valid_model(args, model, val_loader):
 
 # TEST
 @torch.no_grad()
-def test(args, model, test_loader):
+def test(args, model, test_dataset):
     
     model.load_state_dict(torch.load(f'best_{args.model_name}.pth'))
 
+    print_testloader_shape(args, test_dataset)
+
+    ############################# TEST PHASE #############################
+    subset_indices = torch.randperm(len(test_dataset))[:int(args.subset_rate*len(test_dataset)//args.batch_size*args.batch_size)]
+    test_loader = DataLoader(test_dataset, batch_size=args.batch_size, sampler=SubsetRandomSampler(subset_indices), drop_last=True)
+    
     model.eval()
     test_loss, test_mse_loss, test_prediction_loss = valid_model(args, model, test_loader)
     
+    ########################################################################
     print("\n========================= TEST RESULT =========================")
     print(f'[TEST] Total loss: {test_loss:.4f}, MSE: {test_mse_loss:.4f}, Prediction Loss(CE or MSE): {test_prediction_loss:.4f}')
     print("===============================================================")

@@ -18,18 +18,19 @@ def get_args():
     # covtype = 581012 rows | 54 features (int) | 7 classes
     parser.add_argument("--dataset_name", default="wine", type=str)
     parser.add_argument("--val_rate", default=0.2, type=float)
-    parser.add_argument("--test_rate", default=0.1, type=float)
+    parser.add_argument("--test", default=0.1, type=float)
+    parser.add_argument("--subset_rate", default=0.0001, type=float)
 
     # GENERATION SETTINGS
     parser.add_argument("--GENERATION_SETTINGS", default="----------------------")
     # single, multiple, random
-    parser.add_argument("--missing_pattern", default="random", type=str) 
+    parser.add_argument("--missing_pattern", default="multiple", type=str) 
     parser.add_argument("--include_complete", default=False, type=bool)
     # only used in SINGLE missing pattern
     parser.add_argument("--col_to_remove", default=2, type=int)
     # only used in MULTIPLE and RANDOM missing pattern
-    parser.add_argument("--min_remove_count", default=2, type=int)       
-    parser.add_argument("--max_remove_count", default=2, type=int)
+    parser.add_argument("--min_remove_count", default=1, type=int)       
+    parser.add_argument("--max_remove_count", default=12, type=int)
     # only used in RANDOM missing pattern
     parser.add_argument("--new_num_per_origin", default=10, type=int)
 
@@ -39,6 +40,7 @@ def get_args():
     parser.add_argument("--dim_model", default=256, type=int)
     parser.add_argument("--num_head", default=8, type=int)
     parser.add_argument("--dim_ff", default=256, type=int)
+    # wine - 13/3 | diabetes - 10/reg | ortho - 21/2
     parser.add_argument("--num_features", type=int)
     parser.add_argument("--num_classes", type=int)
     parser.add_argument("--num_layers", default=3, type=int)
@@ -73,3 +75,13 @@ def print_args(args):
             print(f"{arg.ljust(max(len(arg) for arg in vars(args)))}: {value}")
 
     print("----------------------------------------------\n\n")
+
+def set_nums(args):
+    if args.dataset_name == 'wine':
+        args.num_features = 13
+        args.num_classes = 3
+    elif args.dataset_name == 'diabetes':  
+        args.num_features = 10
+    elif args.dataset_name == 'ortho':  
+        args.num_features = 21
+        args.num_classes = 2

@@ -15,7 +15,7 @@ source /data/kayoung/init.sh
 conda activate hi-vae
 
 python /data/kayoung/hi-mae/main.py \
---dataset_name ortho \
+--dataset_name wine \
 --min_remove_count 1 \
---max_remove_count 17 \
+--max_remove_count 1 \
 --missing_pattern multiple
