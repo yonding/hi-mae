@@ -1,4 +1,5 @@
 from sklearn.datasets import load_wine # 178 rows | 13 features (float) | 3 classes
+from sklearn.datasets import load_diabetes # 442 rows | 10 features (float) | regression
 from sklearn.datasets import load_boston # 506 rows | 13 features (float) | regression
 from sklearn.datasets import fetch_covtype # 581012 rows | 54 features (int) | 7 classes
 from sklearn.model_selection import train_test_split
@@ -12,6 +13,10 @@ def load_datasets(args):
         wine = load_wine()
         X_df = pd.DataFrame(wine.data, columns=wine.feature_names)
         y_df = pd.DataFrame(wine.target, columns=['target'])
+    elif args.dataset_name == 'diabetes':
+        diabetes = load_diabetes()
+        X_df = pd.DataFrame(diabetes.data, columns=diabetes.feature_names)
+        y_df = pd.DataFrame(diabetes.target, columns=['target'])
     # 506 rows | 13 features (float) | regression
     elif args.dataset_name == 'boston':
         boston = load_boston()
@@ -57,18 +62,19 @@ def load_datasets(args):
 
     X_miss_train = torch.tensor(X_miss_train.values, dtype=torch.float32)
     Z_miss_train = torch.tensor(Z_miss_train.values, dtype=torch.float32)
-    y_miss_train = torch.tensor(y_miss_train.values, dtype=torch.long)
+    y_miss_train = torch.tensor(y_miss_train.values, dtype=torch.float32)
     mask_train = torch.tensor(mask_train.values, dtype=torch.float32)
 
     X_miss_val = torch.tensor(X_miss_val.values, dtype=torch.float32)
     Z_miss_val = torch.tensor(Z_miss_val.values, dtype=torch.float32)
-    y_miss_val = torch.tensor(y_miss_val.values, dtype=torch.long)
+    y_miss_val = torch.tensor(y_miss_val.values, dtype=torch.float32)
     mask_val = torch.tensor(mask_val.values, dtype=torch.float32)
 
     X_miss_test = torch.tensor(X_miss_test.values, dtype=torch.float32)
     Z_miss_test = torch.tensor(Z_miss_test.values, dtype=torch.float32)
-    y_miss_test = torch.tensor(y_miss_test.values, dtype=torch.long)
+    y_miss_test = torch.tensor(y_miss_test.values, dtype=torch.float32)
     mask_test = torch.tensor(mask_test.values, dtype=torch.float32)
 
     
     return X_miss_train, Z_miss_train, y_miss_train, mask_train, X_miss_val, Z_miss_val, y_miss_val, mask_val, X_miss_test, Z_miss_test, y_miss_test, mask_test
+

@@ -10,6 +10,8 @@ def generate_missing_data(args, X_df, y_df):
     X_scaled = scaler.fit_transform(X_df)
     X_df_scaled = pd.DataFrame(X_scaled, columns=X_df.columns)
     y_df = y_df.reset_index(drop=True)
+    if args.dataset_name == 'diabetes':
+        y_df = pd.DataFrame(scaler.fit_transform(y_df), columns=y_df.columns)
 
     complete_df = pd.concat([X_df_scaled, y_df], axis=1)
 

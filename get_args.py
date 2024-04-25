@@ -11,8 +11,9 @@ def get_args():
 
     # DATASET SETTINGS
     parser.add_argument("--DATASET_SETTINGS", default="----------------------")
-    # wine, boston, covtype, ortho
+    # wine, diabetes, boston, covtype, ortho
     # wine = 178 rows | 13 features (float) | 3 classes
+    # diabetes = 442 rows | 10 features (float) | regression
     # boston = 506 rows | 13 features (float) | regression
     # covtype = 581012 rows | 54 features (int) | 7 classes
     parser.add_argument("--dataset_name", default="wine", type=str)
@@ -22,15 +23,15 @@ def get_args():
     # GENERATION SETTINGS
     parser.add_argument("--GENERATION_SETTINGS", default="----------------------")
     # single, multiple, random
-    parser.add_argument("--missing_pattern", default="single", type=str, help="Set the missing pattern.") 
+    parser.add_argument("--missing_pattern", default="random", type=str) 
     parser.add_argument("--include_complete", default=False, type=bool)
     # only used in SINGLE missing pattern
     parser.add_argument("--col_to_remove", default=2, type=int)
     # only used in MULTIPLE and RANDOM missing pattern
-    parser.add_argument("--min_remove_count", default=1, type=int)       
-    parser.add_argument("--max_remove_count", default=1, type=int)
+    parser.add_argument("--min_remove_count", default=2, type=int)       
+    parser.add_argument("--max_remove_count", default=2, type=int)
     # only used in RANDOM missing pattern
-    parser.add_argument("--new_num_per_origin", default=5, type=int)
+    parser.add_argument("--new_num_per_origin", default=10, type=int)
 
     # MODEL SETTINGS
     parser.add_argument("--MODEL_SETTINGS", default="------------------------")
@@ -41,19 +42,20 @@ def get_args():
     parser.add_argument("--num_features", type=int)
     parser.add_argument("--num_classes", type=int)
     parser.add_argument("--num_layers", default=3, type=int)
-    parser.add_argument("--dropout", default=0, type=float)
+    parser.add_argument("--dropout", default=0.1, type=float)
     parser.add_argument("--threshold", default=0.5, type=int)
+    parser.add_argument("--prediction_loss_rate", default=1, type=float)
     parser.add_argument("--mse_rate", default=1, type=float)
     parser.add_argument("--num_parameters", default=0, type=int)
 
     # LEARNING SETTINGS
     parser.add_argument("--LEARNING_SETTINGS", default="----------------------")
-    parser.add_argument("--epochs", default=10000, type=int)
-    parser.add_argument("--batch_size", default=1)
-    parser.add_argument("--learning_rate", default=1e-4, type=float)
-    parser.add_argument("--step_size", default=1000, type=int)
+    parser.add_argument("--epochs", default=1000, type=int)
+    parser.add_argument("--batch_size", default=4)
+    parser.add_argument("--learning_rate", default=1e-3, type=float)
+    parser.add_argument("--step_size", default=20, type=int)
     parser.add_argument("--gamma", default=0.9, type=float)
-    parser.add_argument("--print_period", default=1, type=int)
+    parser.add_argument("--print_period", default=10, type=int)
 
     return parser.parse_args()
 
