@@ -34,6 +34,7 @@ def generate_missing_data(args, X_df, y_df):
         features = [col for col in complete_df.columns if col != "target"]
         for index, row in complete_df.iterrows():
             for r in range(args.min_remove_count, args.max_remove_count + 1):  
+                print("remove count: "+str(r))
                 for subset in itertools.combinations(features, r):
                     new_X_row = row.copy()
                     new_X_row[list(subset)] = 0

@@ -3,7 +3,7 @@ import torch
 
 # PARSE ARGUMENTS
 def get_args():
-    parser = argparse.ArgumentParser(description="VAE for missing value imputation.")
+    parser = argparse.ArgumentParser(description="MAE for missing value imputation.")
     
     # DEVICE SETTINGS
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -18,8 +18,8 @@ def get_args():
     # covtype = 581012 rows | 54 features (int) | 7 classes
     parser.add_argument("--dataset_name", default="wine", type=str)
     parser.add_argument("--val_rate", default=0.2, type=float)
-    parser.add_argument("--test", default=0.1, type=float)
-    parser.add_argument("--subset_rate", default=0.0001, type=float)
+    parser.add_argument("--test_rate", default=0.1, type=float)
+    parser.add_argument("--subset_rate", default=0.01, type=float)
 
     # GENERATION SETTINGS
     parser.add_argument("--GENERATION_SETTINGS", default="----------------------")
@@ -29,24 +29,24 @@ def get_args():
     # only used in SINGLE missing pattern
     parser.add_argument("--col_to_remove", default=2, type=int)
     # only used in MULTIPLE and RANDOM missing pattern
-    parser.add_argument("--min_remove_count", default=1, type=int)       
-    parser.add_argument("--max_remove_count", default=12, type=int)
+    parser.add_argument("--min_remove_count", default=2, type=int)       
+    parser.add_argument("--max_remove_count", default=2, type=int)
     # only used in RANDOM missing pattern
     parser.add_argument("--new_num_per_origin", default=10, type=int)
 
     # MODEL SETTINGS
     parser.add_argument("--MODEL_SETTINGS", default="------------------------")
-    parser.add_argument("--model_name",default="Tabular Transformer", type=str)
-    parser.add_argument("--dim_model", default=256, type=int)
+    parser.add_argument("--model_name",default="TabularTransformer", type=str)
+    parser.add_argument("--dim_model", default=768, type=int)
     parser.add_argument("--num_head", default=8, type=int)
-    parser.add_argument("--dim_ff", default=256, type=int)
+    parser.add_argument("--dim_ff", default=768, type=int)
     # wine - 13/3 | diabetes - 10/reg | ortho - 21/2
     parser.add_argument("--num_features", type=int)
     parser.add_argument("--num_classes", type=int)
     parser.add_argument("--num_layers", default=3, type=int)
     parser.add_argument("--dropout", default=0.1, type=float)
     parser.add_argument("--threshold", default=0.5, type=int)
-    parser.add_argument("--prediction_loss_rate", default=1, type=float)
+    parser.add_argument("--prediction_loss_rate", default=0, type=float)
     parser.add_argument("--mse_rate", default=1, type=float)
     parser.add_argument("--num_parameters", default=0, type=int)
 
@@ -54,7 +54,7 @@ def get_args():
     parser.add_argument("--LEARNING_SETTINGS", default="----------------------")
     parser.add_argument("--epochs", default=1000, type=int)
     parser.add_argument("--batch_size", default=4)
-    parser.add_argument("--learning_rate", default=1e-3, type=float)
+    parser.add_argument("--learning_rate", default=1e-5, type=float)
     parser.add_argument("--step_size", default=20, type=int)
     parser.add_argument("--gamma", default=0.9, type=float)
     parser.add_argument("--print_period", default=10, type=int)

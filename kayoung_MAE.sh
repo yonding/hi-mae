@@ -1,10 +1,10 @@
 #!/bin/bash
 
-#SBATCH --j=marry-mae_multiple_1_3
+#SBATCH --j=marry-mae_wine
 #SBATCH --nodes=1
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-gpu=4
-#SBATCH --mem-per-gpu=60G
+#SBATCH --mem-per-gpu=50G
 #SBATCH -w augi3
 #SBATCH -p batch
 #SBATCH -t 240:00:00
@@ -15,7 +15,4 @@ source /data/kayoung/init.sh
 conda activate hi-vae
 
 python /data/kayoung/hi-mae/main.py \
---dataset_name wine \
---min_remove_count 1 \
---max_remove_count 1 \
---missing_pattern multiple
+--dataset_name wine

@@ -6,14 +6,14 @@ from torch.utils.data import DataLoader, SubsetRandomSampler
 from get_dataloaders import print_dataloaders_shape, print_testloader_shape, deep_copy_dataset
 
 torch.manual_seed(0)
-torch.set_printoptions(precision=4, sci_mode=False, linewidth=10000)
+torch.set_printoptions(precision=6, sci_mode=False, linewidth=10000)
 
 # TRAIN AND VALIDATE
 def train_and_validate(args, model, train_dataset, val_dataset,  optimizer):
 
     print_dataloaders_shape(args, train_dataset, val_dataset)
 
-    patience = 10
+    patience = 100
     best_loss = 1e9
     best_epoch = 0
     counter = 0    
@@ -48,7 +48,7 @@ def train_and_validate(args, model, train_dataset, val_dataset,  optimizer):
         if val_loss < best_loss:
             best_loss = val_loss
             best_epoch = epoch
-            torch.save(model.state_dict(), f'best_{args.model_name}.pth')
+            torch.save(model.state_dict(), f'best_{args.dataset_name}_{args.model_name}.pth')
             counter = 0
         else:
             counter += 1
@@ -60,12 +60,12 @@ def train_and_validate(args, model, train_dataset, val_dataset,  optimizer):
     
 
         print(f'Epoch: {epoch}')
-        print(f'[TRAIN] Total loss: {train_loss:.4f}, MSE: {train_mse_loss:.4f}, Prediction Loss(CE or MSE): {train_prediction_loss:.4f}')
+        print(f'[TRAIN] Total loss: {train_loss:.6f}, MSE: {train_mse_loss:.6f}, Prediction Loss(CE or MSE): {train_prediction_loss:.6f}')
 
-        print(f'[VALID] Total loss: {val_loss:.4f}, MSE: {val_mse_loss:.4f}, Prediction Loss(CE or MSE): {val_prediction_loss:.4f}')
+        print(f'[VALID] Total loss: {val_loss:.6f}, MSE: {val_mse_loss:.6f}, Prediction Loss(CE or MSE): {val_prediction_loss:.6f}')
         if args.dataset_name != 'diabetes': # because diabetes is regression task
             val_metrics = calculate_metrics(args, model, val_loader)
-            print(f'       Accuracy: {val_metrics["accuracy"]:.4f}, AUROC: {val_metrics["auroc"]:.4f}, F1 score: {val_metrics["f1_score"]:.4f}')
+            print(f'       Accuracy: {val_metrics["accuracy"]:.6f}, AUROC: {val_metrics["auroc"]:.6f}, F1 score: {val_metrics["f1_score"]:.6f}')
     print("############################## BEST EPOCH #################################")
     print(f'\nBest epoch: {best_epoch}, Best Val loss: {round(best_loss, 4)}')
     print("###########################################################################")
@@ -186,7 +186,7 @@ def valid_model(args, model, val_loader):
 @torch.no_grad()
 def test(args, model, test_dataset):
     
-    model.load_state_dict(torch.load(f'best_{args.model_name}.pth'))
+    model.load_state_dict(torch.load(f'best_{args.dataset_name}_{args.model_name}.pth'))
 
     print_testloader_shape(args, test_dataset)
 
@@ -199,5 +199,5 @@ def test(args, model, test_dataset):
     
     ########################################################################
     print("\n========================= TEST RESULT =========================")
-    print(f'[TEST] Total loss: {test_loss:.4f}, MSE: {test_mse_loss:.4f}, Prediction Loss(CE or MSE): {test_prediction_loss:.4f}')
+    print(f'[TEST] Total loss: {test_loss:.6f}, MSE: {test_mse_loss:.6f}, Prediction Loss(CE or MSE): {test_prediction_loss:.6f}')
     print("===============================================================")

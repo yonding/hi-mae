@@ -5,6 +5,7 @@ from sklearn.datasets import fetch_covtype # 581012 rows | 54 features (int) | 7
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import torch
+# from generate_missing_data import generate_missing_data
 from generate_missing_data import generate_missing_data
     
 def load_datasets(args):
@@ -73,4 +74,3 @@ def load_datasets(args):
     mask_test = torch.tensor(mask_test.values, dtype=torch.float32)
     
     return X_miss_train, Z_miss_train, y_miss_train, mask_train, X_miss_val, Z_miss_val, y_miss_val, mask_val, X_miss_test, Z_miss_test, y_miss_test, mask_test
-
